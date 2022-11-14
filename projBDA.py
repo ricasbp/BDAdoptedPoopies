@@ -10,26 +10,26 @@ dva = pd.read_csv('disney-voice-actors.csv')
 
 client = MongoClient()
 
-db = client.open_clusters_no_index#TODO
-cluster = db.cluster#TODO
+db = client.open_disney#TODO
+disney = db.disney#TODO
 
 data_dc = dc.to_dict(orient = "records")
 data_dd = dd.to_dict(orient = "records")
 data_dva = dva.to_dict(orient = "records")
 
-cluster.insert_many(data_dc)
-cluster.insert_many(data_dd)
-cluster.insert_many(data_dva)
+disney.insert_many(data_dc)
+disney.insert_many(data_dd)
+disney.insert_many(data_dva)
 
 
 
 #-------------------------SQLITE-------------------------
 
-conn = sqlite3.connect('open_clusters_no_index.db')#TODO
+conn = sqlite3.connect('open_disney.db')#TODO
 c = conn.cursor()
-df.to_sql('clusters', conn)#TODO
-
-
+dc.to_sql('disney-characters', conn)#TODO
+dd.to_sql('disney-director', conn)#TODO
+dva.to_sql('disney-voice-actors', conn)#TODO
 
 
 
