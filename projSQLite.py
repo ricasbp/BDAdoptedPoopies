@@ -1,5 +1,6 @@
 import pandas as pd
 import sqlite3
+from datetime import datetime
 
 dc = pd.read_csv('disney-characters.csv')
 dd = pd.read_csv('disney-director.csv')
@@ -8,41 +9,63 @@ dva = pd.read_csv('disney-voice-actors.csv')
 #-------------------------SQLITE-------------------------
 
 conn = sqlite3.connect('open_disney.db')
-c = conn.cursor()
+cursor = conn.cursor()
 
-c.execute('''DROP TABLE IF EXISTS characters;''')
-c.execute('''DROP TABLE IF EXISTS director;''')
-c.execute('''DROP TABLE IF EXISTS voice_actors;''')
+cursor.execute('''DROP TABLE IF EXISTS characters;''')
+cursor.execute('''DROP TABLE IF EXISTS director;''')
+cursor.execute('''DROP TABLE IF EXISTS voice_actors;''')
 
-c.execute('''CREATE TABLE characters (
+cursor.execute('''CREATE TABLE characters (
     movie_title TEXT(100) PRIMARY KEY,
     release_date DATE NOT NULL,
-    hero TEXT(50),
-    villain TEXT(50),
-    song TEXT(50));''')
+    hero TEXT(100),
+    villain TEXT(100),
+    song TEXT(100));''')
 
-c.execute('''CREATE TABLE director (
-    director TEXT(50) PRIMARY KEY,
-    name TEXT(50),
+cursor.execute('''CREATE TABLE director (
+    director TEXT(100) PRIMARY KEY,
+    name TEXT(100),
     FOREIGN KEY(name) REFERENCES characters(movie_title));''')
 
-c.execute('''CREATE TABLE voice_actors (
-    voice_actor TEXT(50) PRIMARY KEY,
+cursor.execute('''CREATE TABLE voice_actors (
+    voice_actor TEXT(100) PRIMARY KEY,
     movie TEXT(100),
-    character TEXT(50) NOT NULL,
+    character TEXT(100) NOT NULL,
     FOREIGN KEY(movie) REFERENCES characters(movie_title));''')
 
 ins_qry_dc = "insert into characters (movie_title, release_date, hero, villain, song) values (?,?,?,?,?);"
 for c in range(len(dc)):
-    print(dc.loc[c][1])
     movie_title = dc.loc[c][1]
-    release_date = dc.loc[c][2]
+    release_date = datetime.strptime(dc.loc[c][2], '%B %d, %Y')
     hero = dc.loc[c][3]
     villain = dc.loc[c][4]
     song = dc.loc[c][5]
     try:
-        c.execute(ins_qry_dc, (movie_title,release_date,hero,villain,song))
+        cursor.execute(ins_qry_dc, (movie_title,release_date,hero,villain,song))
         conn.commit()
     except:
         print("error in operation")
         conn.rollback()
+
+ins_qry_dd = "insert into director (director, name) values (?,?);"
+for d in range(len(dd)):
+    director = dd.loc[d][1]
+    name = dd.loc[c][2]
+    try:
+        cursor.execute(ins_qry_dd, (director,name))
+        conn.commit()
+    except:
+        print("error in operation")
+        conn.rollback()
+
+ins_qry_dva = "insert into voice_actors (voice_actor, movie, character) values (?,?,?);"
+for va in range(len(dva)):
+    voice_actor = dva.loc[d][1]
+    movie = dva.loc[c][2]
+    character = dva.loc[c][3]
+    # try:
+    cursor.execute(ins_qry_dva, (voice_actor,movie, character))
+    conn.commit()
+    # except:
+    #     print("error in operation")
+    #     conn.rollback()

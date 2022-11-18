@@ -1,5 +1,4 @@
 import pandas as pd
-import sqlite3
 from pymongo import MongoClient
 
 dc = pd.read_csv('disney-characters.csv')
