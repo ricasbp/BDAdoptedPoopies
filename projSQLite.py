@@ -28,7 +28,8 @@ cursor.execute('''CREATE TABLE director (
     FOREIGN KEY(name) REFERENCES characters(movie_title));''')
 
 cursor.execute('''CREATE TABLE voice_actors (
-    voice_actor TEXT(100) PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    voice_actor TEXT(100),
     movie TEXT(100),
     character TEXT(100) NOT NULL,
     FOREIGN KEY(movie) REFERENCES characters(movie_title));''')
@@ -50,7 +51,7 @@ for c in range(len(dc)):
 ins_qry_dd = "insert into director (director, name) values (?,?);"
 for d in range(len(dd)):
     director = dd.loc[d][1]
-    name = dd.loc[c][2]
+    name = dd.loc[d][2]
     try:
         cursor.execute(ins_qry_dd, (director,name))
         conn.commit()
@@ -60,12 +61,35 @@ for d in range(len(dd)):
 
 ins_qry_dva = "insert into voice_actors (voice_actor, movie, character) values (?,?,?);"
 for va in range(len(dva)):
-    voice_actor = dva.loc[d][1]
-    movie = dva.loc[c][2]
-    character = dva.loc[c][3]
-    # try:
-    cursor.execute(ins_qry_dva, (voice_actor,movie, character))
-    conn.commit()
-    # except:
-    #     print("error in operation")
-    #     conn.rollback()
+    voice_actor = dva.loc[va][2]
+    vaArray = voice_actor.split("; ")
+    for i in range(len(vaArray)):
+        if vaArray[i] == "None":
+            vaArray[i] = None #TODO
+    movie = dva.loc[va][3]
+    character = dva.loc[va][1]
+    try:
+        if voice_actor.__contains__(";"):
+            cursor.execute(ins_qry_dva, (vaArray[1],movie, character))
+        cursor.execute(ins_qry_dva, (vaArray[0],movie, character))
+        conn.commit()
+    except:
+        print("error in operation")
+        conn.rollback()
+
+sel_va_TLM = "select voice_actor from voice_actors where movie = 'The Little Mermaid';"
+cursor.execute(sel_va_TLM)
+
+rows_va_TLM = cursor.fetchall()
+
+#for r in rows_va_TLM:
+#    print(r)
+
+sel_va_char = "select character from voice_actors group by character having count(character) > 1;"
+cursor.execute(sel_va_char)
+
+rows_va_char = cursor.fetchall()
+
+for r in rows_va_char:
+    print(r)
+
