@@ -12,7 +12,7 @@ conn = sqlite3.connect('open_disney.db')
 cursor = conn.cursor()
 
 cursor.execute('''DROP TABLE IF EXISTS characters;''')
-cursor.execute('''DROP TABLE IF EXISTS director;''')
+cursor.execute('''DROP TABLE IF EXISTS directors;''')
 cursor.execute('''DROP TABLE IF EXISTS voice_actors;''')
 
 cursor.execute('''CREATE TABLE characters (
@@ -22,8 +22,9 @@ cursor.execute('''CREATE TABLE characters (
     villain TEXT(100),
     song TEXT(100));''')
 
-cursor.execute('''CREATE TABLE director (
-    director TEXT(100) PRIMARY KEY,
+cursor.execute('''CREATE TABLE directors (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    director TEXT(100),
     name TEXT(100),
     FOREIGN KEY(name) REFERENCES characters(movie_title));''')
 
@@ -48,10 +49,10 @@ for c in range(len(dc)):
         print("error in operation")
         conn.rollback()
 
-ins_qry_dd = "insert into director (director, name) values (?,?);"
+ins_qry_dd = "insert into directors (director, name) values (?,?);"
 for d in range(len(dd)):
-    director = dd.loc[d][1]
-    name = dd.loc[d][2]
+    director = dd.loc[d][2]
+    name = dd.loc[d][1]
     try:
         cursor.execute(ins_qry_dd, (director,name))
         conn.commit()
@@ -93,4 +94,27 @@ rows_1_2 = cursor.fetchall()
 #for r in rows_1_2:
 #    print(r)
 
-sel_2_1 = "select "
+#TODO ta bugado, nao aparece mais heros
+sel_2_1 = '''select hero 
+from characters
+inner join directors on directors.name = characters.movie_title and directors.director like 'B%'
+inner join voice_actors on voice_actors.movie = characters.movie_title group by voice_actors.movie having count(voice_actors.movie) > 5;'''
+
+cursor.execute(sel_2_1)
+
+rows_2_1 = cursor.fetchall()
+
+#for r in rows_2_1:
+#    print(r)
+
+sel_2_2 = '''select hero 
+from characters
+inner join directors on directors.name = characters.movie_title and directors.director like 'B%'
+inner join voice_actors on voice_actors.movie = characters.movie_title group by voice_actors.movie having count(voice_actors.movie) > 5;'''
+
+cursor.execute(sel_2_2)
+
+rows_2_2 = cursor.fetchall()
+
+for r in rows_2_2:
+    print(r)
