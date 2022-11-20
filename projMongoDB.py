@@ -23,5 +23,13 @@ disneyC.insert_many(data_dc)
 disneyD.insert_many(data_dd)
 disneyVA.insert_many(data_dva)
 
+select1 = disneyVA.find({'movie':{'$eq':"The Little Mermaid"}})
+for s in select1:
+    print (s.get('voice_actor'), s.get('movie'))
 
+select2 = disneyVA.aggregate([{"$group":{_id:"$character", count:{"$sum":1}}},
+                              {"$match":{"count":{"$gt":1}}}])
+
+for s1 in select2:
+    print (s1.get('voice_actor'), s1.get('character'))
 
