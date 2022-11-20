@@ -77,19 +77,20 @@ for va in range(len(dva)):
         print("error in operation")
         conn.rollback()
 
-sel_va_TLM = "select voice_actor from voice_actors where movie = 'The Little Mermaid';"
-cursor.execute(sel_va_TLM)
+sel_1_1 = "select voice_actor from voice_actors where movie = 'The Little Mermaid';"
+cursor.execute(sel_1_1)
 
-rows_va_TLM = cursor.fetchall()
+rows_1_1 = cursor.fetchall()
 
-#for r in rows_va_TLM:
+#for r in rows_1_1:
 #    print(r)
 
-sel_va_char = "select character from voice_actors group by character having count(character) > 1;"
-cursor.execute(sel_va_char)
+sel_1_2 = "select character from voice_actors group by character having count(character) > 1;"
+cursor.execute(sel_1_2)
 
-rows_va_char = cursor.fetchall()
+rows_1_2 = cursor.fetchall()
 
-for r in rows_va_char:
-    print(r)
+#for r in rows_1_2:
+#    print(r)
 
+sel_2_1 = "select "
