@@ -46,9 +46,43 @@ upd = disneyC.update_one({'movie_title': 'The Jungle Book'},{"$set":{'villain':'
 #complexa1: heroi do filme em que nome diretor começa com letra B e tem mais de cinco atores
 
 #from disneyD where name: /^t/
-insc = disneyD.find({'name': /^B/},{'director':1})
-insc1 = disneyVA.aggregate([{"$group":{_id:"$movie", count:{"$sum":1}}},
-                              {"$match":{"count":{"$gt":5}}}])
+#insc = disneyD.find({'name': /^B/},{'director':1})
+#insc1 = disneyVA.aggregate([{"$group":{_id:"$movie", count:{"$sum":1}}},
+                              #{"$match":{"count":{"$gt":5}}}])
+
+
+ins_comp = disneyC.aggregate([
+
+    # Join with director table
+    {
+        "$lookup":{
+            from: disneyD,       # other table name
+            localField: "movie_title",   # name of disneyD table field
+            foreignField: "name", # name of userinfo table field
+            as: "disney_director"         # alias for userinfo table
+        },
+        "$match":{"name": {"$regex": /^B/}}
+    },""",
+
+    # Join with voice_actor table
+    {
+        "$lookup":{
+            from: "disneyVA", 
+            localField: "movie_title", 
+            foreignField: "movie",
+            as: "disney_voiceactor"
+        },
+        "$group":{_id:"$movie", count:{"$sum":1}}},
+                    {"$match":{"count":{"$gt":5}}
+    },
+"""
+    # define which fields are you want to fetch
+    {   
+        "$project":{
+            hero : 1
+        } 
+    }
+])
 
 """
 sel_b_1 = '''select hero 
