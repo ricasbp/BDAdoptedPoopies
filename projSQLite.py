@@ -70,7 +70,7 @@ for va in range(len(dva)):
     for i in range(len(vaArray)):
         if vaArray[i] == "None":
             vaArray[i] = None 
-#TODO
+#TODO verificar no sqlbrowse e mongo compass
     movie = dva.loc[va][3]
     character = dva.loc[va][1]
     try:
@@ -84,23 +84,25 @@ for va in range(len(dva)):
         print("error in operation")
         conn.rollback()
 
+#voice actors from the movie The Little Mermaid
 sel_a_1 = "select voice_actor from voice_actors where movie = 'The Little Mermaid';"
-cursor.execute(sel_1_1)
+cursor.execute(sel_a_1)
 
 rows_a_1 = cursor.fetchall()
 
-#for r in rows_1_1:
+#for r in rows_a_1:
 #    print(r)
 
+#characters who have more than one voice_actor
 sel_a_2 = "select character from voice_actors group by character having count(character) > 1;"
-cursor.execute(sel_1_2)
+cursor.execute(sel_a_2)
 
 rows_a_2 = cursor.fetchall()
 
-#for r in rows_1_2:
+#for r in rows_a_2:
 #    print(r)
 
-# heroi do filme em que o nome do diretor começa com a letra P e tem mais de 5 atores
+# heroi do filme em que o nome do diretor começa com a letra B e tem mais de 5 atores
 #TODO ta bugado, nao aparece mais heros
 sel_b_1 = '''select hero 
 from characters
@@ -111,21 +113,27 @@ cursor.execute(sel_b_1)
 
 rows_b_1 = cursor.fetchall()
 
-#for r in rows_2_1:
+#for r in rows_b_1:
 #    print(r)
 
-# Todos os vilões que têm um voice_actor que não trabalhou com o Diretor "X"   
-# Nao funfa i dont' know why
-sel_b_2 = '''select c.villain, c.movie_title , director.name
-from characters c 
-left join voice_actors 
-on c.villain = voice_actors.character 
-left join director
-on c.movie_title = director.name
-and director.name == "Byron Howard" '''
+# Todos os vilões que têm um voice_actor que não trabalhou com o Diretor "Byron Howard" TODO:Testar melhor   
+sel_b_2 = '''select villain
+from characters 
+inner join voice_actors on characters.movie_title = voice_actors.movie and characters.villain = voice_actors.character 
+left join directors on characters.movie_title = directors.name and directors.director == "Byron Howard";'''
 cursor.execute(sel_b_2)
 
 rows_b_2 = cursor.fetchall()
 
-for r in rows_b_2:
-    print(r)
+#for r in rows_b_2:
+#    print(r)
+
+#insert into directors "Stephen Hillenburg" with the movie name "Spongebob Squarepants"
+ins_c_1 = '''insert into directors (director, name) values ("Stephen Hillenburg","Spongebob Squarepants");'''
+cursor.execute(ins_c_1)
+
+#update the jungle book Villain to balu
+up_c_2 = '''update characters
+            set villain = "Balu"
+            where movie_title = "The Jungle Book";'''
+cursor.execute(up_c_2)
