@@ -27,7 +27,7 @@ disneyVA.insert_many(data_dva)
 select1 = disneyVA.find({'movie':"The Little Mermaid"}, { 'voice-actor': 1})
 for s in select1:
     print (s.get('voice-actor'))
-"""
+
 #select the characters that have more than one voice actor
 select2 = disneyVA.aggregate([{"$group":{_id:"$character", count:{"$sum":1}}},
                               {"$match":{"count":{"$gt":1}}}])
@@ -40,7 +40,7 @@ ins1 = disneyD.insert_one({'director':'Stephen Hillenburg','movie':'Spongebob Sq
 
 #update in characters in "The Jungle Book" villain from current to Balu
 upd = disneyC.update_one({'movie_title': 'The Jungle Book'},{"$set":{'villain':'Balu'}})
-"""
+
 
 #complex:
 #complexa1: heroi do filme em que nome diretor começa com letra B e tem mais de cinco atores
@@ -55,13 +55,14 @@ ins_comp = disneyC.aggregate([
 
     # Join with director table
     {
-        "$lookup":{
-            from: disneyD,       # other table name
+        "$lookup":
+        {
+            "from": disneyD,       # other table name
             localField: "movie_title",   # name of disneyD table field
             foreignField: "name", # name of userinfo table field
-            as: "disney_director"         # alias for userinfo table
+            "as": "disney_director"         # alias for userinfo table
         },
-        "$match":{"name": {"$regex": /^B/}}
+        "$match":{"name": {"$regex": 'B%'}}
     },""",
 
     # Join with voice_actor table
@@ -83,6 +84,10 @@ ins_comp = disneyC.aggregate([
         } 
     }
 ])
+
+
+for s1 in ins_comp:
+    print (s1.get('hero'), s1.get('voice_actor'))
 
 """
 sel_b_1 = '''select hero 
