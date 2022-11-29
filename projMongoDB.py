@@ -1,9 +1,10 @@
 import pandas as pd
 from pymongo import MongoClient
+from restructdata import *
 
-dc = pd.read_csv('disney-characters.csv')
-dd = pd.read_csv('disney-director.csv')
-dva = pd.read_csv('disney-voice-actors.csv')
+dc = structCharacters()
+dd = structDirectors()
+dva = structVoiceActors()
 
 #-------------------------MONGODB-------------------------
 
@@ -29,7 +30,7 @@ for s in select1:
     print (s.get('voice-actor'))
 
 #select the characters that have more than one voice actor
-select2 = disneyVA.aggregate([{"$group":{_id:"$character", count:{"$sum":1}}},
+select2 = disneyVA.aggregate([{"$group":{"_id":"$character", "count":{"$sum":1}}},
                               {"$match":{"count":{"$gt":1}}}])
 
 for s1 in select2:
@@ -58,36 +59,48 @@ ins_comp = disneyC.aggregate([
         "$lookup":
         {
             "from": disneyD,       # other table name
-            localField: "movie_title",   # name of disneyD table field
-            foreignField: "name", # name of userinfo table field
+            "localField": "movie_title",   # name of disneyD table field
+            "foreignField": "name", # name of userinfo table field
             "as": "disney_director"         # alias for userinfo table
         },
         "$match":{"name": {"$regex": 'B%'}}
-    },""",
+    },
 
     # Join with voice_actor table
     {
         "$lookup":{
-            from: "disneyVA", 
-            localField: "movie_title", 
-            foreignField: "movie",
-            as: "disney_voiceactor"
+            "from": "disneyVA", 
+            "localField": "movie_title", 
+            "foreignField": "movie",
+            "as": "disney_voiceactor"
         },
-        "$group":{_id:"$movie", count:{"$sum":1}}},
-                    {"$match":{"count":{"$gt":5}}
+        "$group":{"_id":"$movie", "count":{"$sum":1}}},
+                    {"$match":{"count":{"$gt":12}}
     },
-"""
+
     # define which fields are you want to fetch
     {   
         "$project":{
-            hero : 1
+            "hero" : 1
         } 
     }
 ])
 
-
 for s1 in ins_comp:
     print (s1.get('hero'), s1.get('voice_actor'))
+
+ins_comp = disneyC.aggregate([
+    {
+    "$lookup":
+    {
+        "from": disneyD,       # other table name
+        "localField": "movie_title",   # name of disneyD table field
+        "foreignField": "name", # name of userinfo table field
+        "as": "disney_director"         # alias for userinfo table
+    },
+    "$match":{"name": {"$regex": 'B%'}}
+    },
+])
 
 """
 sel_b_1 = '''select hero 

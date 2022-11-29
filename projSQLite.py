@@ -1,10 +1,10 @@
 import pandas as pd
 import sqlite3
-from datetime import datetime
+from restructdata import *
 
-dc = pd.read_csv('disney-characters.csv')
-dd = pd.read_csv('disney-director.csv')
-dva = pd.read_csv('disney-voice-actors.csv')
+dc = structCharacters()
+dd = structDirectors()
+dva = structVoiceActors()
 
 #-------------------------SQLITE-------------------------
 
@@ -38,8 +38,8 @@ cursor.execute('''CREATE TABLE voice_actors (
 
 ins_qry_dc = "insert into characters (movie_title, release_date, hero, villain, song) values (?,?,?,?,?);"
 for c in range(len(dc)):
-    movie_title = dc.loc[c][1].replace('\n','')
-    release_date = datetime.strptime(dc.loc[c][2], '%B %d, %Y')
+    movie_title = dc.loc[c][1]
+    release_date = dc.loc[c][2]
     hero = dc.loc[c][3]
     villain = dc.loc[c][4]
     song = dc.loc[c][5]
@@ -64,13 +64,11 @@ for d in range(len(dd)):
 ins_qry_dva = "insert into voice_actors (voice_actor1, voice_actor2, movie, character) values (?,?,?,?);"
 for va in range(len(dva)):
     voice_actor = dva.loc[va][2]
-    vaArray = voice_actor.split("; ")
-#TODO verificar no sqlbrowse e mongo compass
+    voice_actor2 = dva.loc[va][4]
     movie = dva.loc[va][3]
     character = dva.loc[va][1]
-    vaArray.append(None)
     try:
-        cursor.execute(ins_qry_dva, (vaArray[0], vaArray[1],movie, character))
+        cursor.execute(ins_qry_dva, (voice_actor, voice_actor2, movie, character))
         conn.commit()
     except:
         print("error in operation")
