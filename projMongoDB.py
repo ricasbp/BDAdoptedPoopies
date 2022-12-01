@@ -67,7 +67,7 @@ ins_comp = disneyC.aggregate([
                     { "$expr":
                         { "$and":
                             [
-                                { "$match": {"$director": {"$regex": 'B%'}}},
+                                { "$regexMatch": {"input":"$director", "regex": 'B%'}},
                                 { "$eq":[ "$movie_title", "$$disneyC_title"] }
                             ]
                         }
