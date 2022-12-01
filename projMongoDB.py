@@ -59,31 +59,26 @@ ins_comp = disneyC.aggregate([
         "$lookup":
         {
             "from": "disneyD",       # other table name
-            "localField": "movie_title",   # name of disneyD table field
-            "foreignField": "name", # name of userinfo table field
+            #"localField": "movie_title",   # name of disneyD table field
+            #"foreignField": "name", # name of userinfo table field
+            "let": { "disneyC_title": "$name" },
+            "pipeline": [
+                { "$match":
+                    { "$expr":
+                        { "$and":
+                            [
+                                { "$match": {"$director": {"$regex": 'B%'}}},
+                                { "$eq":[ "$movie_title", "$$disneyC_title"] }
+                            ]
+                        }
+                    }
+                }
+            ],
             "as": "disney_director"         # alias for userinfo table
         },
     },
-    {
-        "$match":{"name": {"$regex": 'B%'}}
-    },
     # Join with voice_actor table
-    {
-        "$lookup":{
-            "from": "disneyVA", 
-            "localField": "movie_title", 
-            "foreignField": "movie",
-            "as": "disney_voiceactor"
-        },
-    },
-    {
-        "$group":{"_id":"$movie", "count":{"$sum":1}}
-    },
-                    
-    {
-        "$match":{"count":{"$gt":12}}
-    },
-    # define which fields are you want to fetch
+    # define which fields you want to fetch
     {   
         "$project":{
             "hero" : 1
@@ -101,3 +96,20 @@ from characters
 inner join directors on directors.name = characters.movie_title and directors.director like 'B%'
 inner join voice_actors on voice_actors.movie = characters.movie_title group by voice_actors.movie having count(voice_actors.movie) > 5;'''
 """
+
+"""
+    {
+        "$lookup":{
+            "from": "disneyVA", 
+            "localField": "movie_title", 
+            "foreignField": "movie",
+            "as": "disney_voiceactor"
+        },
+    },
+    {
+        "$group":{"_id":"$movie", "count":{"$sum":1}}
+    },
+                    
+    {
+        "$match":{"count":{"$gt":12}}
+    },"""
