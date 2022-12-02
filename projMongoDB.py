@@ -20,6 +20,10 @@ data_dc = dc.to_dict(orient = "records")
 data_dd = dd.to_dict(orient = "records")
 data_dva = dva.to_dict(orient = "records")
 
+disneyC.drop()
+disneyD.drop()
+disneyVA.drop()
+
 disneyC.insert_many(data_dc)
 disneyD.insert_many(data_dd)
 disneyVA.insert_many(data_dva)
@@ -51,53 +55,24 @@ upd = disneyC.update_one({'movie_title': 'The Jungle Book'},{"$set":{'villain':'
 #insc1 = disneyVA.aggregate([{"$group":{_id:"$movie", count:{"$sum":1}}},
                               #{"$match":{"count":{"$gt":5}}}])
 
-
 ins_comp = disneyC.aggregate([
-
-    # Join with director table
     {
-        "$lookup":
-        {
-            "from": "disneyD",       # other table name
-            #"localField": "movie_title",   # name of disneyD table field
-            #"foreignField": "name", # name of userinfo table field
-            "let": { "disneyC_title": "$name" },
-            "pipeline": [
-                { "$match":
-                    { "$expr":
-                        { "$and":
-                            [
-                                { "$regexMatch": {"input":"$director", "regex": 'B%'}},
-                                { "$eq":[ "$movie_title", "$$disneyC_title"] }
-                            ]
-                        }
-                    }
-                }
-            ],
-            "as": "disney_director"         # alias for userinfo table
-        },
-    },
-    # Join with voice_actor table
-    # define which fields you want to fetch
-    {   
-        "$project":{
-            "hero" : 1
-        } 
+    # Join with director table
+    "$lookup": {
+        "from": "disneyD",       # other table name
+        "localField": "movie_title",   # name of disneyD table field
+        "foreignField": "name", # name of userinfo table field
+        "as": "disney_director",        # alias for userinfo table
     }
-])
-
-for s1 in ins_comp:
-    print (s1.get('hero'), s1.get('voice_actor'))
-
-
-"""
-sel_b_1 = '''select hero 
-from characters
-inner join directors on directors.name = characters.movie_title and directors.director like 'B%'
-inner join voice_actors on voice_actors.movie = characters.movie_title group by voice_actors.movie having count(voice_actors.movie) > 5;'''
-"""
-
-"""
+    },
+    {
+    "$unwind" : "$disney_director"
+    }, 
+    {
+    "$match": {
+                "disney_director.director": { "$regex": "^B" }  
+            }
+    },
     {
         "$lookup":{
             "from": "disneyVA", 
@@ -107,9 +82,31 @@ inner join voice_actors on voice_actors.movie = characters.movie_title group by 
         },
     },
     {
-        "$group":{"_id":"$movie", "count":{"$sum":1}}
+        "$unwind" : "$disney_voiceactor"
     },
-                    
     {
+        "$group":{"_id":"$disney_voiceactor.movie", 
+        "count":{"$sum":1},
+        "hero" : {"$first" : "$hero"}
+        }
+    },
+    {   
         "$match":{"count":{"$gt":12}}
-    },"""
+    },
+    {
+        "$project" : {
+            "hero" : 1
+        }
+    }
+])
+
+for s1 in ins_comp:
+    print (s1.get("hero"))
+
+
+"""
+sel_b_1 = '''select hero 
+from characters
+inner join directors on directors.name = characters.movie_title and directors.director like 'B%'
+inner join voice_actors on voice_actors.movie = characters.movie_title group by voice_actors.movie having count(voice_actors.movie) > 5;'''
+"""
