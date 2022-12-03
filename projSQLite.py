@@ -1,3 +1,4 @@
+import time
 import pandas as pd
 import sqlite3
 from restructdata import *
@@ -76,19 +77,27 @@ for va in range(len(dva)):
 
 #voice actors from the movie The Little Mermaid
 sel_a_1 = "select voice_actor1 from voice_actors where movie = 'The Little Mermaid';"
-cursor.execute(sel_a_1)
 
+time_i = time.time()
+
+cursor.execute(sel_a_1)
 rows_a_1 = cursor.fetchall()
 
+time_f = time.time()
+print('sel_a_1 time with no index: ', time_f-time_i)
 #for r in rows_a_1:
 #    print(r)
 
 #characters who have more than one voice_actor
 sel_a_2 = "select character from voice_actors where voice_actor2 is not null;"
-cursor.execute(sel_a_2)
 
+time_i = time.time()
+
+cursor.execute(sel_a_2)
 rows_a_2 = cursor.fetchall()
 
+time_f = time.time()
+print('sel_a_2 time with no index: ', time_f-time_i)
 #for r in rows_a_2:
 #    print(r)
 
@@ -98,10 +107,13 @@ from characters
 inner join directors on directors.name = characters.movie_title and directors.director like 'B%'
 inner join voice_actors on voice_actors.movie = characters.movie_title group by voice_actors.movie having count(voice_actors.movie) > 12;'''
 
-cursor.execute(sel_b_1)
+time_i = time.time()
 
+cursor.execute(sel_b_1)
 rows_b_1 = cursor.fetchall()
 
+time_f = time.time()
+print('sel_b_1 time with no index: ', time_f-time_i)
 #for r in rows_b_1:
 #    print(r)
 
@@ -110,21 +122,34 @@ sel_b_2 = '''select villain
 from characters
 inner join voice_actors on characters.movie_title = voice_actors.movie and characters.villain = voice_actors.character 
 left join directors on characters.movie_title = directors.name and directors.director == "Ron Clements" where directors.director is null;'''
-cursor.execute(sel_b_2)
 
+time_i = time.time()
+
+cursor.execute(sel_b_2)
 rows_b_2 = cursor.fetchall()
 
-for r in rows_b_2:
-    print(r)
+time_f = time.time()
+print('sel_b_2 time with no index: ', time_f-time_i)
+#for r in rows_b_2:
+#    print(r)
 
 #insert into directors "Stephen Hillenburg" with the movie name "Spongebob Squarepants"
 ins_c_1 = '''insert into directors (director, name) values ("Stephen Hillenburg","Spongebob Squarepants");'''
+time_i = time.time()
+
 cursor.execute(ins_c_1)
+time_f = time.time()
+print('ins_c_1 time with no index: ', time_f-time_i)
 
 #update the jungle book Villain to balu
 up_c_2 = '''update characters
-            set villain = "Balu"
+            set villain = "Baloo Bear"
             where movie_title = "The Jungle Book";'''
-cursor.execute(up_c_2)
 
+time_i = time.time()
+
+cursor.execute(up_c_2)
 cursor.fetchall()
+
+time_f = time.time()
+print('up_c_2 time with no index: ', time_f-time_i)
