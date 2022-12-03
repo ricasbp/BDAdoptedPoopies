@@ -103,6 +103,7 @@ sel_comp1 = disneyC.aggregate([
 # for s1 in sel_comp1:
 #     print (s1.get("hero"))
 
+# Todos os vilões que têm um voice_actor que não trabalhou com o Diretor "Ron Clements"
 '''select villain
 from characters
 inner join voice_actors on characters.movie_title = voice_actors.movie and characters.villain = voice_actors.character 
@@ -110,7 +111,23 @@ left join directors on characters.movie_title = directors.name and directors.dir
 
 sel_comp2 = disneyC.aggregate([
     {
-    "$lookup":{
+    "$lookup": {
+        "from": "disneyD",       
+        "localField": "movie_title",   
+        "foreignField": "name", 
+        "as": "disney_director"
+        },
+    },
+    {
+    "$unwind" : "$disney_director"
+    }, 
+    {
+    "$match": {
+        "disney_director.director": {"$ne": "Ron Clements"}
+        }
+    },
+    {
+    "$lookup": {
         "from": "disneyVA", 
         "localField": "movie_title", 
         "foreignField": "movie",
@@ -144,4 +161,4 @@ sel_comp2 = disneyC.aggregate([
 
 
 for s2 in sel_comp2:
-    print (s2)
+    print (s2.get("villain"))
