@@ -55,7 +55,7 @@ upd = disneyC.update_one({'movie_title': 'The Jungle Book'},{"$set":{'villain':'
 #insc1 = disneyVA.aggregate([{"$group":{_id:"$movie", count:{"$sum":1}}},
                               #{"$match":{"count":{"$gt":5}}}])
 
-ins_comp = disneyC.aggregate([
+sel_comp1 = disneyC.aggregate([
     {
     # Join with director table
     "$lookup": {
@@ -70,43 +70,68 @@ ins_comp = disneyC.aggregate([
     }, 
     {
     "$match": {
-                "disney_director.director": { "$regex": "^B" }  
-            }
+        "disney_director.director": { "$regex": "^B" }  
+        }
     },
     {
-        "$lookup":{
-            "from": "disneyVA", 
-            "localField": "movie_title", 
-            "foreignField": "movie",
-            "as": "disney_voiceactor"
+    "$lookup":{
+        "from": "disneyVA", 
+        "localField": "movie_title", 
+        "foreignField": "movie",
+        "as": "disney_voiceactor"
         },
     },
     {
-        "$unwind" : "$disney_voiceactor"
+    "$unwind" : "$disney_voiceactor"
     },
     {
-        "$group":{"_id":"$disney_voiceactor.movie", 
+    "$group":{"_id":"$disney_voiceactor.movie", 
         "count":{"$sum":1},
         "hero" : {"$first" : "$hero"}
         }
     },
     {   
-        "$match":{"count":{"$gt":12}}
+    "$match":{"count":{"$gt":12}}
     },
     {
-        "$project" : {
-            "hero" : 1
+    "$project" : {
+        "hero" : 1
         }
     }
 ])
 
-for s1 in ins_comp:
-    print (s1.get("hero"))
+# for s1 in sel_comp1:
+#     print (s1.get("hero"))
 
-
-"""
-sel_b_1 = '''select hero 
+'''select villain
 from characters
-inner join directors on directors.name = characters.movie_title and directors.director like 'B%'
-inner join voice_actors on voice_actors.movie = characters.movie_title group by voice_actors.movie having count(voice_actors.movie) > 5;'''
-"""
+inner join voice_actors on characters.movie_title = voice_actors.movie and characters.villain = voice_actors.character 
+left join directors on characters.movie_title = directors.name and directors.director == "Ron Clements" where directors.director is null;'''
+
+sel_comp2 = disneyC.aggregate([
+    {
+    "$lookup":{
+        "from": "disneyVA", 
+        "localField": "movie_title", 
+        "foreignField": "movie",
+        "let" : 
+        "as": "disney_voiceactor"
+        },
+    },
+    {
+    "$unwind" : "$disney_voiceactor"
+    },
+    # {
+    # "$match" : {"$expr" : { "$eq" :  ["villain", "$disney_voiceactor.character"]}}
+    # },
+    {
+        "$project" :
+        {
+            "disney_voiceactor.character" : 1
+        }
+    }
+])
+
+
+for s2 in sel_comp2:
+    print (s2)
