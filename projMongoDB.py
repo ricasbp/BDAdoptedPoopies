@@ -43,8 +43,7 @@ select2 = disneyVA.find({"voice_actor2" : { "$ne" : None}}, {"character" : 1})
 ins1 = disneyD.insert_one({'director':'Stephen Hillenburg','movie':'Spongebob Squarepants'})
 
 #update in characters in "The Jungle Book" villain from current to Balu
-upd = disneyC.update_one({'movie_title': 'The Jungle Book'},{"$set":{'villain':'Balu'}})
-
+upd = disneyC.update_one({"movie_title": "The Jungle Book"},{"$set":{"villain":"Baloo Bear"}})
 
 #complex:
 #complexa1: heroi do filme em que nome diretor começa com letra B e tem mais de cinco atores
