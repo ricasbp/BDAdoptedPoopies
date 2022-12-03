@@ -114,22 +114,32 @@ sel_comp2 = disneyC.aggregate([
         "from": "disneyVA", 
         "localField": "movie_title", 
         "foreignField": "movie",
-        "let" : 
         "as": "disney_voiceactor"
         },
     },
     {
     "$unwind" : "$disney_voiceactor"
     },
-    # {
-    # "$match" : {"$expr" : { "$eq" :  ["villain", "$disney_voiceactor.character"]}}
-    # },
     {
-        "$project" :
+    "$project" :
         {
-            "disney_voiceactor.character" : 1
+            "v" : {"$eq" : ["$disney_voiceactor.character","$villain"]},
+            "villain" : 1
         }
-    }
+    },
+    {
+    "$match" : {
+            "v" : { "$eq" : True}
+        }
+    },
+    {
+    "$lookup":{
+        "from": "disneyD", 
+        "localField": "movie_title", 
+        "foreignField": "name",
+        "as": "disney_director"
+        },
+    },
 ])
 
 
