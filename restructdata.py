@@ -31,6 +31,6 @@ def structVoiceActors():
         voice_actor = dva.loc[va][2]
         vaArray = voice_actor.split("; ")
         vaArray.append(None)
-        dva['voice-actor'] = dva['voice-actor'].replace([dva.loc[va][2]],vaArray[0])
-        dva['voice_actor2'] = dva['voice_actor2'].replace([dva.loc[va][4]],vaArray[1])
+        dva.at[va, 'voice-actor'] = vaArray[0]
+        dva.at[va, 'voice_actor2'] = vaArray[1]
     return dva

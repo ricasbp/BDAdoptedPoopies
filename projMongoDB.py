@@ -33,12 +33,11 @@ select1 = disneyVA.find({'movie':"The Little Mermaid"}, { 'voice-actor': 1})
 #for s in select1:
 #    print (s.get('voice-actor'))
 
-#select the characters that have more than one voice actor TODO reformular consoante as mudanças feitas
-select2 = disneyVA.aggregate([{"$group":{"_id":"$character", "count":{"$sum":1}}},
-                              {"$match":{"count":{"$gt":1}}}])
+#select the characters that have more than one voice actor
+select2 = disneyVA.find({"voice_actor2" : { "$ne" : None}}, {"character" : 1})
 
-#for s1 in select2:
-#    print (s1.get('voice_actor'), s1.get('character'))
+# for s1 in select2:
+#    print (s1)
 
 #insert into directors "Stephen Hillenburg" para movie "Spongebob Squarepants"
 ins1 = disneyD.insert_one({'director':'Stephen Hillenburg','movie':'Spongebob Squarepants'})
@@ -112,22 +111,6 @@ left join directors on characters.movie_title = directors.name and directors.dir
 sel_comp2 = disneyC.aggregate([
     {
     "$lookup": {
-        "from": "disneyD",       
-        "localField": "movie_title",   
-        "foreignField": "name", 
-        "as": "disney_director"
-        },
-    },
-    {
-    "$unwind" : "$disney_director"
-    }, 
-    {
-    "$match": {
-        "disney_director.director": {"$ne": "Ron Clements"}
-        }
-    },
-    {
-    "$lookup": {
         "from": "disneyVA", 
         "localField": "movie_title", 
         "foreignField": "movie",
@@ -152,6 +135,14 @@ sel_comp2 = disneyC.aggregate([
         },
     },
     {
+    "$unwind" : "$disney_director"
+    }, 
+    {
+    "$match": {
+        "disney_director.director": {"$ne": "Ron Clements"}
+        }
+    },
+    {
     "$project" :
         {
             "villain" : 1
@@ -160,5 +151,5 @@ sel_comp2 = disneyC.aggregate([
 ])
 
 
-for s2 in sel_comp2:
-    print (s2)
+# for s2 in sel_comp2:
+#     print(s2)
