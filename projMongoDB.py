@@ -138,15 +138,9 @@ sel_comp2 = disneyC.aggregate([
     "$unwind" : "$disney_voiceactor"
     },
     {
-    "$project" :
-        {
-            "v" : {"$eq" : ["$disney_voiceactor.character","$villain"]},
-            "villain" : 1
-        }
-    },
-    {
-    "$match" : {
-            "v" : { "$eq" : True}
+    "$match" : { 
+        "$expr" : {
+            "$eq" : ["$disney_voiceactor.character","$villain"]}
         }
     },
     {
@@ -157,8 +151,14 @@ sel_comp2 = disneyC.aggregate([
         "as": "disney_director"
         },
     },
+    {
+    "$project" :
+        {
+            "villain" : 1
+        }
+    },
 ])
 
 
 for s2 in sel_comp2:
-    print (s2.get("villain"))
+    print (s2)
