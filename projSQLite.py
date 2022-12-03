@@ -114,8 +114,8 @@ cursor.execute(sel_b_2)
 
 rows_b_2 = cursor.fetchall()
 
-#for r in rows_b_2:
-#    print(r)
+for r in rows_b_2:
+    print(r)
 
 #insert into directors "Stephen Hillenburg" with the movie name "Spongebob Squarepants"
 ins_c_1 = '''insert into directors (director, name) values ("Stephen Hillenburg","Spongebob Squarepants");'''
