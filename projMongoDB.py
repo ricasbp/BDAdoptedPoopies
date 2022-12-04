@@ -169,7 +169,7 @@ sel_comp2 = disneyC.aggregate([
 # 
 
 # creation of the database, for indexing next
- = client.open_disney_index
+db_i = client.open_disney_index
 
 # creation of the collections
 disneyC_i = db_i.disneyC_i
