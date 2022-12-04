@@ -1,5 +1,5 @@
 import pandas as pd
-from pymongo import MongoClient
+from pymongo import *
 from restructdata import *
 import time
 
@@ -26,6 +26,10 @@ data_dva = dva.to_dict(orient = "records")
 disneyC.drop()
 disneyD.drop()
 disneyVA.drop()
+
+disneyD.drop_indexes()
+disneyVA.drop_indexes()
+disneyC.drop_indexes()
 
 #Insert data into collections
 disneyC.insert_many(data_dc)
@@ -152,72 +156,39 @@ sel_comp2 = disneyC.aggregate([
 # 4. Indexes
 # 
 
-# connection to mongo
-client = MongoClient()
-
 # creation of the database, for indexing next
-db = client.open_disney_index
+db_i = client.open_disney_index
 
 # creation of the collections
-disneyC = db.disneyC
-disneyD = db.disneyD
-disneyVA = db.disneyVA
+disneyC_i = db.disneyC_i
+disneyD_i = db.disneyD_i
+disneyVA_i = db.disneyVA_i
 
-data_dc = dc.to_dict(orient = "records")
-data_dd = dd.to_dict(orient = "records")
-data_dva = dva.to_dict(orient = "records")
+disneyC_i.drop()
+disneyD_i.drop()
+disneyVA_i.drop()
 
-disneyC.drop()
-disneyD.drop()
-disneyVA.drop()
-
-disneyC.insert_many(data_dc)
-disneyD.insert_many(data_dd)
-disneyVA.insert_many(data_dva)
+disneyC_i.insert_many(data_dc)
+disneyD_i.insert_many(data_dd)
+disneyVA_i.insert_many(data_dva)
 
 # Delete index if it exists one to correctly run the query
 
-disneyD.drop_indexes()
-disneyVA.drop_indexes()
-disneyC.drop_indexes()
+disneyD_i.drop_indexes()
+disneyVA_i.drop_indexes()
+disneyC_i.drop_indexes()
 
+disneyVA_i.create_index( [("movie" , TEXT), ("character", ASCENDING)])
 
+disneyD_i.create_index( [("director" , DESCENDING), ("name" , TEXT)])
 
-# create an index in descending order, and return a result
-resp = disneyVA.create_index( [("movie", -1)])
-print("index response:", resp)
-
-
-# create an index in ascending order, and return a result
-resp = disneyC.create_index( [("movie_title", "hashed")] )
-print("index response:", resp)
-
-
-client.close() 
-
-
+disneyC_i.create_index( [("movie_title", TEXT), ("villain", 1), ("hero", 1), ("disney_voiceactor",1)])
 
 def performance(collection, query):
-    #for x in range(1500):
     time_i = time.time()
     mydoc2 = collection.find(query)
     time_f = time.time()
     print('Time:  ', time_f - time_i)
-
-# connection to mongo without indexes
-client = MongoClient()
-db = client.open_disney
-disneyC = db.disneyC
-disneyD = db.disneyD
-disneyVA = db.disneyVA
-
-# connection to mongo with indexes
-client2 = MongoClient()
-db2 = client2.open_disney_index
-disneyC_i = db2.disneyC
-disneyD_i = db2.disneyD
-disneyVA_i = db2.disneyVA
-
 
 #select voice actors from the movie The Little Mermaid
 select1query = { "movie":"The Little Mermaid",  "voice-actor": 1 }
@@ -232,7 +203,6 @@ performance(disneyVA_i, select1query)
 print("select2query")
 performance(disneyVA, select2query)
 performance(disneyVA_i, select2query)
-
 
 def performanceAggregate(collection, query):
     time_i = time.time()
@@ -252,11 +222,6 @@ sel_comp1query = [
     },
     {
     "$unwind" : "$disney_director"
-    }, 
-    {
-    "$match": {
-        "disney_director.director": { "$regex": "^B" }  
-        }
     },
     {
     "$lookup":{
@@ -279,7 +244,9 @@ sel_comp1query = [
         }
     },
     {   
-    "$match":{"count":{"$gt":12}}
+    "$match":{"count":{"$gt":12},
+            "disney_director.director": { "$regex": "^B" }  
+        }
     },
     {
     "$project" : {
@@ -293,3 +260,51 @@ sel_comp1query = [
 print("sel_comp1")
 performanceAggregate(disneyC, sel_comp1query)
 performanceAggregate(disneyC_i, sel_comp1query)
+
+sel_comp2query = [
+    {
+    "$lookup": {
+        "from": "disneyVA", 
+        "localField": "movie_title", 
+        "foreignField": "movie",
+        "as": "disney_voiceactor"
+        },
+    },
+    {
+    "$unwind" : "$disney_voiceactor"
+    },
+    {
+    "$match" : { 
+        "$expr" : {
+            "$eq" : ["$disney_voiceactor.character","$villain"]}
+        }
+    },
+    {
+    "$lookup":{
+        "from": "disneyD", 
+        "localField": "movie_title", 
+        "foreignField": "name",
+        "as": "disney_director"
+        },
+    },
+    {
+    "$unwind" : "$disney_director"
+    }, 
+    {
+    "$match": {
+        "disney_director.director": {"$ne": "Ron Clements"}
+        }
+    },
+    {
+    "$project" :
+        {
+            "villain" : 1
+        }
+    },
+]
+
+print("sel_comp2")
+performanceAggregate(disneyC, sel_comp2query)
+performanceAggregate(disneyC_i, sel_comp2query)
+
+client.close()
