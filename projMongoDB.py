@@ -175,29 +175,34 @@ disneyC.insert_many(data_dc)
 disneyD.insert_many(data_dd)
 disneyVA.insert_many(data_dva)
 
+# Delete index if it exists one to correctly run the query
 
-disneyVA.create_index("sortmovieNameZtoA")
-disneyD.create_index("sortDirectorNameZtoA")
+disneyD.drop_indexes()
+disneyVA.drop_indexes()
+disneyC.drop_indexes()
+
+
 
 # create an index in descending order, and return a result
-resp = disneyVA.create_index([("movie", -1)])
+resp = disneyVA.create_index( [("movie", -1)])
 print("index response:", resp)
 
+
 # create an index in ascending order, and return a result
-resp = disneyD.create_index([("director", 1)])
+resp = disneyC.create_index( [("movie_title", "hashed")] )
 print("index response:", resp)
+
 
 client.close() 
 
 
+
 def performance(collection, query):
-    timeTotal = 0
-    for x in range(1500):
-        time_i = time.time()
-        mydoc2 = collection.find(query)
-        time_f = time.time()
-        timeTotal = timeTotal + (time_f - time_i)
-    print('Average Time of 1500 runs: ', timeTotal/1500)
+    #for x in range(1500):
+    time_i = time.time()
+    mydoc2 = collection.find(query)
+    time_f = time.time()
+    print('Time:  ', time_f - time_i)
 
 # connection to mongo without indexes
 client = MongoClient()
@@ -220,60 +225,71 @@ select1query = { "movie":"The Little Mermaid",  "voice-actor": 1 }
 #select the characters that have more than one voice actor
 select2query = { "voice_actor2" : { "$ne" : None}, "character" : 1 }
 
-
 print("select1query")
 performance(disneyVA, select1query)
 performance(disneyVA_i, select1query)
 
-# Ainda nao consegui fazer para o aggregate
+print("select2query")
+performance(disneyVA, select2query)
+performance(disneyVA_i, select2query)
+
+
 def performanceAggregate(collection, query):
-    timeTotal = 0
-    for x in range(1500):
-        time_i = time.time()
-        mydoc2 = collection.aggregate(query)
-        time_f = time.time()
-        timeTotal = timeTotal + (time_f - time_i)
-    print('Average Time of 1500 runs: ', timeTotal/1500)
+    time_i = time.time()
+    mydoc2 = collection.aggregate(query)
+    time_f = time.time()
+    print('Time: ', time_f - time_i)
 
-# sel_comp1query = [{
-    
-#     # Join with director table
-#     "$lookup": {
-#         "from": "disneyD",       # other table name
-#         "localField": "movie_title",   # name of disneyD table field
-#         "foreignField": "name", # name of userinfo table field
-#         "as": "disney_director",        # alias for userinfo table
-#     }
-#     , 
-#     "$unwind" : "$disney_director"
-#     , 
-#     "$match": {
-#         "disney_director.director": { "$regex": "^B" }  
-#         }
-#     ,
-#     "$lookup":{
-#         "from": "disneyVA", 
-#         "localField": "movie_title", 
-#         "foreignField": "movie",
-#         "as": "disney_voiceactor"
-#         }
-#     ,
-#     "$unwind" : "$disney_voiceactor"
-#     ,
-#     "$group":{"_id":"$disney_voiceactor.movie", 
-#         "count":{"$sum":1},
-#         "hero" : {"$first" : "$hero"}
-#         }
-#     ,
-#     "$match":{"count":{"$gt":12}}
-#     ,
-#     "$project" : {
-#         "hero" : 1
-#         }
-    
-# }]
+sel_comp1query = [
+    {
+    # Join with director table
+    "$lookup": {
+        "from": "disneyD",       # other table name
+        "localField": "movie_title",   # name of disneyD table field
+        "foreignField": "name", # name of userinfo table field
+        "as": "disney_director",        # alias for userinfo table
+    }
+    },
+    {
+    "$unwind" : "$disney_director"
+    }, 
+    {
+    "$match": {
+        "disney_director.director": { "$regex": "^B" }  
+        }
+    },
+    {
+    "$lookup":{
+        "from": "disneyVA", 
+        "localField": "movie_title", 
+        "foreignField": "movie",
+        "as": "disney_voiceactor"
+        },
+    },
+    {
+    "$unwind" : "$disney_voiceactor"
+    },
+    {
+    "$group":{"_id":"$disney_voiceactor.movie", 
 
+        "count":{"$sum":1},
 
-#print("sel_comp1")
-#performanceAggregate(disneyD, sel_comp1query)
-#performanceAggregate(disneyD_i, sel_comp1query)
+        "hero" : {"$first" : "$hero"}
+
+        }
+    },
+    {   
+    "$match":{"count":{"$gt":12}}
+    },
+    {
+    "$project" : {
+        "hero" : 1
+        }
+    }
+]
+
+#complexa1: heroi do filme em que nome diretor começa com letra B e tem mais de cinco atores
+
+print("sel_comp1")
+performanceAggregate(disneyC, sel_comp1query)
+performanceAggregate(disneyC_i, sel_comp1query)
