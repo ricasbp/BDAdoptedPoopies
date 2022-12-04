@@ -160,9 +160,9 @@ sel_comp2 = disneyC.aggregate([
 db_i = client.open_disney_index
 
 # creation of the collections
-disneyC_i = db.disneyC_i
-disneyD_i = db.disneyD_i
-disneyVA_i = db.disneyVA_i
+disneyC_i = db_i.disneyC_i
+disneyD_i = db_i.disneyD_i
+disneyVA_i = db_i.disneyVA_i
 
 disneyC_i.drop()
 disneyD_i.drop()
@@ -180,7 +180,7 @@ disneyC_i.drop_indexes()
 
 disneyVA_i.create_index( [("movie" , TEXT), ("character", ASCENDING)])
 
-disneyD_i.create_index( [("director" , DESCENDING), ("name" , TEXT)])
+disneyD_i.create_index( [("director" , ASCENDING), ("name" , TEXT)])
 
 disneyC_i.create_index( [("movie_title", TEXT), ("villain", 1), ("hero", 1), ("disney_voiceactor",1)])
 
