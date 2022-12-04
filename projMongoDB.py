@@ -27,6 +27,7 @@ disneyC.drop()
 disneyD.drop()
 disneyVA.drop()
 
+#Drop indexes if they're created
 disneyD.drop_indexes()
 disneyVA.drop_indexes()
 disneyC.drop_indexes()
@@ -35,6 +36,10 @@ disneyC.drop_indexes()
 disneyC.insert_many(data_dc)
 disneyD.insert_many(data_dd)
 disneyVA.insert_many(data_dva)
+
+#
+# Simple Queries:
+#
 
 #SELECT voice actors from the movie The Little Mermaid
 select1 = disneyVA.find({'movie':"The Little Mermaid"}, { 'voice-actor': 1})
@@ -47,13 +52,22 @@ select2 = disneyVA.find({"voice_actor2" : { "$ne" : None}}, {"character" : 1})
 # for s1 in select2:
 #    print (s1)
 
+
+
+#
+# Insert & Update
+#
+
+
 #insert into directors "Stephen Hillenburg" para movie "Spongebob Squarepants"
 ins1 = disneyD.insert_one({'director':'Stephen Hillenburg','movie':'Spongebob Squarepants'})
 
 #update in characters in "The Jungle Book" villain from current to Balu
 upd = disneyC.update_one({"movie_title": "The Jungle Book"},{"$set":{"villain":"Baloo Bear"}})
 
-#complex:
+#
+# Complex Queries:
+#
 
 #SELECT heros from the movie which the directors name starts with "B" and it has more than 12 voice actors
 sel_comp1 = disneyC.aggregate([
@@ -146,8 +160,6 @@ sel_comp2 = disneyC.aggregate([
         }
     },
 ])
-
-
 # for s2 in sel_comp2:
 #     print(s2)
 
@@ -157,7 +169,7 @@ sel_comp2 = disneyC.aggregate([
 # 
 
 # creation of the database, for indexing next
-db_i = client.open_disney_index
+ = client.open_disney_index
 
 # creation of the collections
 disneyC_i = db_i.disneyC_i
