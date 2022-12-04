@@ -1,5 +1,4 @@
 import time
-import pandas as pd
 import sqlite3
 from restructdata import *
 
@@ -17,7 +16,7 @@ cursor.execute('''DROP TABLE IF EXISTS directors;''')
 cursor.execute('''DROP TABLE IF EXISTS voice_actors;''')
 
 cursor.execute('''DROP INDEX IF EXISTS index_characters;''')
-cursor.execute("DROP TABLE IF EXISTS index_VA")
+cursor.execute("DROP INDEX IF EXISTS index_VA")
 
 cursor.execute('''CREATE TABLE characters (
     movie_title TEXT(100) PRIMARY KEY,
@@ -26,17 +25,11 @@ cursor.execute('''CREATE TABLE characters (
     villain TEXT(100),
     song TEXT(100));''')
 
-
-
 cursor.execute('''CREATE TABLE directors (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     director TEXT(100) NOT NULL,
     name TEXT(100),
     FOREIGN KEY(name) REFERENCES characters(movie_title));''')
-
-#Create a secondary key on the name column
-#createSecondaryIndex = "CREATE INDEX index_characters_director ON directors(director);"
-#cursor.execute(createSecondaryIndex)
 
 cursor.execute('''CREATE TABLE voice_actors (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -45,10 +38,6 @@ cursor.execute('''CREATE TABLE voice_actors (
     movie TEXT(100),
     character TEXT(100) NOT NULL,
     FOREIGN KEY(movie) REFERENCES characters(movie_title));''')
-
-#Create a secondary key on the character column
-#createSecondaryIndex = "CREATE INDEX index_va_character ON voice_actors(character);"
-#cursor.execute(createSecondaryIndex)
 
 ins_qry_dc = "insert into characters (movie_title, release_date, hero, villain, song) values (?,?,?,?,?);"
 for c in range(len(dc)):
@@ -91,6 +80,7 @@ for va in range(len(dva)):
     except:
         print("error in operation")
         conn.rollback()
+
 
 cursor.execute("CREATE INDEX index_VA ON voice_actors(movie,character);")
 
@@ -154,6 +144,7 @@ print('sel_b_2 time with no index: ', time_f-time_i)
 
 #insert into directors "Stephen Hillenburg" with the movie name "Spongebob Squarepants"
 ins_c_1 = '''insert into directors (director, name) values ("Stephen Hillenburg","Spongebob Squarepants");'''
+
 time_i = time.time()
 
 cursor.execute(ins_c_1)
