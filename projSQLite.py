@@ -8,16 +8,21 @@ dva = structVoiceActors()
 
 #-------------------------SQLITE-------------------------
 
+#Connection to DB
 conn = sqlite3.connect('open_disney.db')
 cursor = conn.cursor()
 
+
+#Drop tables if they're created
 cursor.execute('''DROP TABLE IF EXISTS characters;''')
 cursor.execute('''DROP TABLE IF EXISTS directors;''')
 cursor.execute('''DROP TABLE IF EXISTS voice_actors;''')
 
+#Drop indexes if they're created
 cursor.execute('''DROP INDEX IF EXISTS index_characters;''')
 cursor.execute("DROP INDEX IF EXISTS index_VA")
 
+#Creates tables
 cursor.execute('''CREATE TABLE characters (
     movie_title TEXT(100) PRIMARY KEY,
     release_date DATE NOT NULL,
@@ -39,6 +44,7 @@ cursor.execute('''CREATE TABLE voice_actors (
     character TEXT(100) NOT NULL,
     FOREIGN KEY(movie) REFERENCES characters(movie_title));''')
 
+#Insert data into characters table
 ins_qry_dc = "insert into characters (movie_title, release_date, hero, villain, song) values (?,?,?,?,?);"
 for c in range(len(dc)):
     movie_title = dc.loc[c][1]
@@ -53,10 +59,11 @@ for c in range(len(dc)):
         print("error in operation")
         conn.rollback()
 
-#Create a secondary key on the name column
+#Creates index for faster selects
 createSecondaryIndex = "CREATE INDEX index_characters ON characters(movie_title,hero,villain);"
 cursor.execute(createSecondaryIndex)
 
+#Insert data into directors table
 ins_qry_dd = "insert into directors (director, name) values (?,?);"
 for d in range(len(dd)):
     director = dd.loc[d][2]
@@ -68,6 +75,7 @@ for d in range(len(dd)):
         print("error in operation")
         conn.rollback()
 
+#Insert data into voice_actors table
 ins_qry_dva = "insert into voice_actors (voice_actor1, voice_actor2, movie, character) values (?,?,?,?);"
 for va in range(len(dva)):
     voice_actor = dva.loc[va][2]
@@ -81,10 +89,10 @@ for va in range(len(dva)):
         print("error in operation")
         conn.rollback()
 
-
+#Creates index for faster selects
 cursor.execute("CREATE INDEX index_VA ON voice_actors(movie,character);")
 
-#voice actors from the movie The Little Mermaid
+#SELECT voice actors from the movie The Little Mermaid
 sel_a_1 = "select voice_actor1 from voice_actors where movie = 'The Little Mermaid';"
 
 time_i = time.time()
@@ -97,7 +105,7 @@ print('sel_a_1 time with no index: ', time_f-time_i)
 #for r in rows_a_1:
 #    print(r)
 
-#characters who have more than one voice_actor
+#SELECT characters who have more than one voice_actor
 sel_a_2 = "select character from voice_actors where voice_actor2 is not null;"
 
 time_i = time.time()
@@ -110,7 +118,7 @@ print('sel_a_2 time with no index: ', time_f-time_i)
 #for r in rows_a_2:
 #    print(r)
 
-# heroi do filme em que o nome do diretor começa com a letra B e tem mais de 12 atores
+#SELECT heros from the movie which the directors name starts with "B" and it has more than 12 voice actors
 sel_b_1 = '''select hero 
 from characters
 inner join directors on directors.name = characters.movie_title and directors.director like 'B%'
@@ -126,7 +134,7 @@ print('sel_b_1 time with no index: ', time_f-time_i)
 #for r in rows_b_1:
 #    print(r)
 
-# Todos os vilões que têm um voice_actor que não trabalhou com o Diretor "Ron Clements"
+#SELECT villains from the movie where the voice actor of the villain didn't work with the Director "Ron Clements"
 sel_b_2 = '''select villain
 from characters
 inner join voice_actors on characters.movie_title = voice_actors.movie and characters.villain = voice_actors.character 

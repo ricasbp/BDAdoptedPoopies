@@ -9,10 +9,11 @@ dva = structVoiceActors()
 
 #-------------------------MONGODB-------------------------
 
+#Connection to DB
 client = MongoClient()
-
 db = client.open_disney
 
+#Creates collections
 disneyC = db.disneyC
 disneyD = db.disneyD
 disneyVA = db.disneyVA
@@ -21,20 +22,22 @@ data_dc = dc.to_dict(orient = "records")
 data_dd = dd.to_dict(orient = "records")
 data_dva = dva.to_dict(orient = "records")
 
+#Drop documents if they're created
 disneyC.drop()
 disneyD.drop()
 disneyVA.drop()
 
+#Insert data into collections
 disneyC.insert_many(data_dc)
 disneyD.insert_many(data_dd)
 disneyVA.insert_many(data_dva)
 
-#select voice actors from the movie The Little Mermaid
+#SELECT voice actors from the movie The Little Mermaid
 select1 = disneyVA.find({'movie':"The Little Mermaid"}, { 'voice-actor': 1})
 #for s in select1:
 #    print (s.get('voice-actor'))
 
-#select the characters that have more than one voice actor
+#SELECT characters who have more than one voice_actor
 select2 = disneyVA.find({"voice_actor2" : { "$ne" : None}}, {"character" : 1})
 
 # for s1 in select2:
@@ -47,13 +50,8 @@ ins1 = disneyD.insert_one({'director':'Stephen Hillenburg','movie':'Spongebob Sq
 upd = disneyC.update_one({"movie_title": "The Jungle Book"},{"$set":{"villain":"Baloo Bear"}})
 
 #complex:
-#complexa1: heroi do filme em que nome diretor começa com letra B e tem mais de cinco atores
 
-#from disneyD where name: /^t/
-#insc = disneyD.find({'name': /^B/},{'director':1})
-#insc1 = disneyVA.aggregate([{"$group":{_id:"$movie", count:{"$sum":1}}},
-                              #{"$match":{"count":{"$gt":5}}}])
-
+#SELECT heros from the movie which the directors name starts with "B" and it has more than 12 voice actors
 sel_comp1 = disneyC.aggregate([
     {
     # Join with director table
@@ -102,12 +100,7 @@ sel_comp1 = disneyC.aggregate([
 # for s1 in sel_comp1:
 #     print (s1.get("hero"))
 
-# Todos os vilões que têm um voice_actor que não trabalhou com o Diretor "Ron Clements"
-'''select villain
-from characters
-inner join voice_actors on characters.movie_title = voice_actors.movie and characters.villain = voice_actors.character 
-left join directors on characters.movie_title = directors.name and directors.director == "Ron Clements" where directors.director is null;'''
-
+#SELECT villains from the movie where the voice actor of the villain didn't work with the Director "Ron Clements"
 sel_comp2 = disneyC.aggregate([
     {
     "$lookup": {
