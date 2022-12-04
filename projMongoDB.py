@@ -1,6 +1,7 @@
 import pandas as pd
 from pymongo import MongoClient
 from restructdata import *
+import time
 
 dc = structCharacters()
 dd = structDirectors()
@@ -152,3 +153,134 @@ sel_comp2 = disneyC.aggregate([
 
 # for s2 in sel_comp2:
 #     print(s2)
+
+
+#
+# 4. Indexes
+# 
+
+# connection to mongo
+client = MongoClient()
+
+# creation of the database, for indexing next
+db = client.open_disney_index
+
+# creation of the collections
+disneyC = db.disneyC
+disneyD = db.disneyD
+disneyVA = db.disneyVA
+
+data_dc = dc.to_dict(orient = "records")
+data_dd = dd.to_dict(orient = "records")
+data_dva = dva.to_dict(orient = "records")
+
+disneyC.drop()
+disneyD.drop()
+disneyVA.drop()
+
+disneyC.insert_many(data_dc)
+disneyD.insert_many(data_dd)
+disneyVA.insert_many(data_dva)
+
+
+disneyVA.create_index("sortmovieNameZtoA")
+disneyD.create_index("sortDirectorNameZtoA")
+
+# create an index in descending order, and return a result
+resp = disneyVA.create_index([("movie", -1)])
+print("index response:", resp)
+
+# create an index in ascending order, and return a result
+resp = disneyD.create_index([("director", 1)])
+print("index response:", resp)
+
+client.close() 
+
+
+def performance(collection, query):
+    timeTotal = 0
+    for x in range(1500):
+        time_i = time.time()
+        mydoc2 = collection.find(query)
+        time_f = time.time()
+        timeTotal = timeTotal + (time_f - time_i)
+    print('Average Time of 1500 runs: ', timeTotal/1500)
+
+# connection to mongo without indexes
+client = MongoClient()
+db = client.open_disney
+disneyC = db.disneyC
+disneyD = db.disneyD
+disneyVA = db.disneyVA
+
+# connection to mongo with indexes
+client2 = MongoClient()
+db2 = client2.open_disney_index
+disneyC_i = db2.disneyC
+disneyD_i = db2.disneyD
+disneyVA_i = db2.disneyVA
+
+
+#select voice actors from the movie The Little Mermaid
+select1query = { "movie":"The Little Mermaid",  "voice-actor": 1 }
+
+#select the characters that have more than one voice actor
+select2query = { "voice_actor2" : { "$ne" : None}, "character" : 1 }
+
+
+print("select1query")
+performance(disneyVA, select1query)
+performance(disneyVA_i, select1query)
+
+# Ainda nao consegui fazer para o aggregate
+def performanceAggregate(collection, query):
+    timeTotal = 0
+    for x in range(1500):
+        time_i = time.time()
+        mydoc2 = collection.aggregate(query)
+        time_f = time.time()
+        timeTotal = timeTotal + (time_f - time_i)
+    print('Average Time of 1500 runs: ', timeTotal/1500)
+
+# sel_comp1query = [{
+    
+#     # Join with director table
+#     "$lookup": {
+#         "from": "disneyD",       # other table name
+#         "localField": "movie_title",   # name of disneyD table field
+#         "foreignField": "name", # name of userinfo table field
+#         "as": "disney_director",        # alias for userinfo table
+#     }
+#     , 
+#     "$unwind" : "$disney_director"
+#     , 
+#     "$match": {
+#         "disney_director.director": { "$regex": "^B" }  
+#         }
+#     ,
+#     "$lookup":{
+#         "from": "disneyVA", 
+#         "localField": "movie_title", 
+#         "foreignField": "movie",
+#         "as": "disney_voiceactor"
+#         }
+#     ,
+#     "$unwind" : "$disney_voiceactor"
+#     ,
+#     "$group":{"_id":"$disney_voiceactor.movie", 
+#         "count":{"$sum":1},
+#         "hero" : {"$first" : "$hero"}
+#         }
+#     ,
+#     "$match":{"count":{"$gt":12}}
+#     ,
+#     "$project" : {
+#         "hero" : 1
+#         }
+    
+# }]
+
+
+#print("sel_comp1")
+#performanceAggregate(disneyD, sel_comp1query)
+#performanceAggregate(disneyD_i, sel_comp1query)

@@ -75,6 +75,11 @@ for va in range(len(dva)):
         print("error in operation")
         conn.rollback()
 
+#
+# 4. Indexing
+#
+
+        
 #voice actors from the movie The Little Mermaid
 sel_a_1 = "select voice_actor1 from voice_actors where movie = 'The Little Mermaid';"
 
@@ -153,3 +158,41 @@ cursor.fetchall()
 
 time_f = time.time()
 print('up_c_2 time with no index: ', time_f-time_i)
+
+
+#
+# 4. Indexing and optimization Ricas
+#
+
+# 4.a)
+# 4.b)
+
+# Tempo SEM Index   
+# Characters who have more than one voice_actor
+sel_a_2 = "select character from voice_actors group by character having count(character) > 1;"
+time_i = time.time()
+cursor.execute(sel_a_2)
+rows_b_2 = cursor.fetchall()
+time_f = time.time()
+
+print('time with no index: ', time_f-time_i)
+for r in rows_b_2:
+    print(r)
+
+
+# Create Index on Column - Alpahebtic order Index by name Character (?) - Eu nao sei qual o index que ele cria
+multi_col = "CREATE INDEX index_Character ON voice_actors (character);"
+cursor.execute(multi_col)
+
+# Tempo COM Index    
+# Characters who have more than one voice_actor
+sel_a_2 = "select character from voice_actors group by character having count(character) > 1;"
+time_i2 = time.time()
+cursor.execute(sel_a_2)
+rows_b_2 = cursor.fetchall()
+time_f2 = time.time()
+
+print("-----------------INDEXED-----------------------")
+print('time with index   : ', time_f2-time_i2)
+for r in rows_b_2:
+    print(r)
