@@ -16,6 +16,9 @@ cursor.execute('''DROP TABLE IF EXISTS characters;''')
 cursor.execute('''DROP TABLE IF EXISTS directors;''')
 cursor.execute('''DROP TABLE IF EXISTS voice_actors;''')
 
+cursor.execute('''DROP INDEX IF EXISTS index_characters;''')
+cursor.execute("DROP TABLE IF EXISTS index_VA")
+
 cursor.execute('''CREATE TABLE characters (
     movie_title TEXT(100) PRIMARY KEY,
     release_date DATE NOT NULL,
@@ -23,11 +26,17 @@ cursor.execute('''CREATE TABLE characters (
     villain TEXT(100),
     song TEXT(100));''')
 
+
+
 cursor.execute('''CREATE TABLE directors (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    director TEXT(100),
+    director TEXT(100) NOT NULL,
     name TEXT(100),
     FOREIGN KEY(name) REFERENCES characters(movie_title));''')
+
+#Create a secondary key on the name column
+#createSecondaryIndex = "CREATE INDEX index_characters_director ON directors(director);"
+#cursor.execute(createSecondaryIndex)
 
 cursor.execute('''CREATE TABLE voice_actors (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -36,6 +45,10 @@ cursor.execute('''CREATE TABLE voice_actors (
     movie TEXT(100),
     character TEXT(100) NOT NULL,
     FOREIGN KEY(movie) REFERENCES characters(movie_title));''')
+
+#Create a secondary key on the character column
+#createSecondaryIndex = "CREATE INDEX index_va_character ON voice_actors(character);"
+#cursor.execute(createSecondaryIndex)
 
 ins_qry_dc = "insert into characters (movie_title, release_date, hero, villain, song) values (?,?,?,?,?);"
 for c in range(len(dc)):
@@ -50,6 +63,10 @@ for c in range(len(dc)):
     except:
         print("error in operation")
         conn.rollback()
+
+#Create a secondary key on the name column
+createSecondaryIndex = "CREATE INDEX index_characters ON characters(movie_title,hero,villain);"
+cursor.execute(createSecondaryIndex)
 
 ins_qry_dd = "insert into directors (director, name) values (?,?);"
 for d in range(len(dd)):
@@ -74,6 +91,8 @@ for va in range(len(dva)):
     except:
         print("error in operation")
         conn.rollback()
+
+cursor.execute("CREATE INDEX index_VA ON voice_actors(movie,character);")
 
 #voice actors from the movie The Little Mermaid
 sel_a_1 = "select voice_actor1 from voice_actors where movie = 'The Little Mermaid';"
