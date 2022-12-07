@@ -109,6 +109,16 @@ rows_a_2 = cursor.fetchall()
 #for r in rows_a_2:
 #    print(r)
 
+sel_a = '''SELECT count(movie_title) 
+from characters 
+where movie_title like "D%";'''
+
+cursor.execute(sel_a)
+rows_a = cursor.fetchall()
+
+for r in rows_a:
+    print(r)
+
 #SELECT heros from the movie which the directors name starts with "B" and it has more than 12 voice actors
 sel_b_1 = '''select hero 
 from characters
@@ -145,3 +155,20 @@ up_c_2 = '''update characters
 
 cursor.execute(up_c_2)
 cursor.fetchall()
+
+#update filmes começam com M
+up_3 = '''update characters
+          set hero = "Eu"
+          where movie_title like 'M%'; '''
+cursor.execute(up_3)
+rows_teste = cursor.fetchall()
+
+sel_ = sel_a = '''SELECT * 
+from characters 
+where movie_title like "M%";'''
+
+cursor.execute(sel_)
+rows_ = cursor.fetchall()
+
+for r in rows_:
+    print(r)

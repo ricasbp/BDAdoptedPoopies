@@ -52,12 +52,9 @@ select2 = disneyVA.find({"voice_actor2" : { "$ne" : None}}, {"character" : 1})
 # for s1 in select2:
 #    print (s1)
 
-
-
 #
 # Insert & Update
 #
-
 
 #insert into directors "Stephen Hillenburg" para movie "Spongebob Squarepants"
 ins1 = disneyD.insert_one({'director':'Stephen Hillenburg','movie':'Spongebob Squarepants'})
@@ -267,7 +264,6 @@ sel_comp1query = [
     }
 ]
 
-#complexa1: heroi do filme em que nome diretor começa com letra B e tem mais de cinco atores
 
 print("sel_comp1")
 performanceAggregate(disneyC, sel_comp1query)
