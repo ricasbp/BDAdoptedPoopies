@@ -22,7 +22,7 @@ The times shown refer to the simple and complex select queries and the times are
 
 ![BDA_Improvment](https://github.com/ricasbp/DisneyMoviesDB/assets/59062659/94f1e44a-269d-4140-9430-eb9d3d4cbaed)
 
-This improvement refers to the Select1, in the Database applied with an Compound Index.
+This improvement refers to the Select "sel_comp1" done in the Database that had an Compound Index.
 
 
 
