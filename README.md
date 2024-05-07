@@ -22,8 +22,7 @@ The times shown refer to the simple and complex select queries and the times are
 
 ![BDA_Improvment](https://github.com/ricasbp/DisneyMoviesDB/assets/59062659/94f1e44a-269d-4140-9430-eb9d3d4cbaed)
 
-This improvement refers to the Select "sel_comp1" done in the Database that had an Compound Index.
-
+The time taken for the Select operation 'sel_comp1' in the Database, which utilized a Compound Index, showed a 95% improvement.
 
 
 ## SQL DataBase Schema:
