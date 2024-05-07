@@ -29,5 +29,5 @@ The time taken for the Select operation 'sel_comp1' in the Database, which utili
 
 ![SQL](https://github.com/ricasbp/DisneyMoviesDB/assets/59062659/7b6c0f7a-cd77-4778-b11b-a751b11af7ec)
 
-There was no significant time improvement in the SQL DataBase because the DB was too small.
+There was no significant time improvement in the SQL DataBase because the DB was too small for a remarkable time improvement.
 
