@@ -18,6 +18,8 @@ if they’re ascending or descending.
 
 ![imagem](https://github.com/ricasbp/DisneyMoviesDB/assets/59062659/e930c17c-ea11-4b93-bf1a-6736930e586b)
 
+![BDA_Improvment](https://github.com/ricasbp/DisneyMoviesDB/assets/59062659/94f1e44a-269d-4140-9430-eb9d3d4cbaed)
+
 
 The times shown refer to the simple and complex select queries and the times are shown in seconds.
 
