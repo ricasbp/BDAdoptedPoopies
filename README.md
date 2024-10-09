@@ -1,7 +1,7 @@
 # Description of the project: 
-This project analyzed relational and non-relational database paradigms within the context of the Advanced Database Course.
+This project analyzed relational and non-relational database paradigms within the context of the Advanced Database Course. 
+Through schema design, indexing, and query optimizations, this project provided an exploration of database structures and performance enhancements across SQLite and MongoDB, highlighting the nuanced differences between relational and non-relational approaches. By creating better indexing, query times were improved by 95%, showcasing the significant impact of optimization techniques on database performance.
 
-Through schema design, indexing, and query optimizations, this project provided an exploration of database structures and performance enhancements across SQLite and MongoDB, highlighting the nuanced differences between relational and non-relational approaches.
 
 Using the same data, we created two DataBases:
 ## NoSQL DataBase Schema:
