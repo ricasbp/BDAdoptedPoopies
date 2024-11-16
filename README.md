@@ -8,11 +8,28 @@ Using the same data, we created two DataBases:
 
 ![NoSQL](https://github.com/ricasbp/DisneyMoviesDB/assets/59062659/f8748330-be1f-4128-8760-a9a165911a86)
 
-In mongoDB there are more types of indexing and the two we think were the most beneficial
-are the compound index and the text index. Firstly, we used the compound index in order to
-combine documents. We used Text indexes to remove certain words of movie names, from
-every collection, and we added the used keys in the queries, having almost no difference to
-if they’re ascending or descending.
+## MongoDB Indexing
+
+![image](https://github.com/user-attachments/assets/8612c918-9473-49b4-b6ac-9c2a40ba74fb)
+
+In this example, we index all of the ratings of books.
+Instead of searching for the whole DataBase books, our search query will only examine the Book_Rating Index.
+
+Advantages:
+- Indexing allows us to focus on specific subsets of documents, significantly improving query performance for targeted searches.
+- For collections with a large number of documents, sorting becomes faster and more efficient when indexes are used.
+
+Disadvantages:
+- Any updates to the collection require updating the corresponding indexes, which can add computational and storage overhead. This challenge becomes more significant in collections with a large number of indexes, as the maintenance cost increases proportionally.
+
+
+### Indexing that we used 
+
+In mongoDB there are multiple types of indexing and the two we think are the most beneficial
+are the compound index and the text index. 
+
+Firstly, we used the compound index in order to combine documents. 
+Then we used Text indexes to remove certain words of movie names, from every collection, and we added the used keys in the queries, having almost no difference to if they’re ascending or descending.
 
 ### NoSQL Time Improvement:
 
