@@ -25,8 +25,7 @@ Disadvantages:
 
 ### Indexing that we used 
 
-In mongoDB there are multiple types of indexing and the two we think are the most beneficial
-are the compound index and the text index. 
+In mongoDB there are multiple types of indexing and the two we think are the most beneficial in our scenario are the compound index and the text index. 
 
 Firstly, we used the compound index in order to combine documents. 
 Then we used Text indexes to remove certain words of movie names, from every collection, and we added the used keys in the queries, having almost no difference to if they’re ascending or descending.
